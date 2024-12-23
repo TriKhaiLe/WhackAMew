@@ -43,7 +43,7 @@ class Game {
             for(let i = 0; i < spawnCount; i++) {
                 this.spawnAnimal();
             }
-        }, 500);
+        }, 800);
     }
 
     spawnAnimal() {
