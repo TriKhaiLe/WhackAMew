@@ -54,6 +54,11 @@ class Game {
         });
 
         this.init();
+
+        this.timeLeft = 15;
+        this.timerElement = document.getElementById('time');
+        this.gameInterval = null;
+        this.timerInterval = null;
     }
 
     init() {
@@ -67,15 +72,41 @@ class Game {
     }
 
     startGame() {
-        // Spawn nhiều object hơn bằng cách:
-        // 1. Giảm interval xuống 500ms (từ 1000ms)
-        // 2. Mỗi lần spawn sẽ tạo 2-3 object
-        setInterval(() => {
-            const spawnCount = Math.floor(Math.random() * 2) + 2; // Random 2-3 object
+        // Khởi tạo timer
+        this.timerInterval = setInterval(() => {
+            this.timeLeft--;
+            this.timerElement.textContent = this.timeLeft;
+            
+            if (this.timeLeft <= 0) {
+                this.endGame();
+            }
+        }, 1000);
+
+        // Spawn animals
+        this.gameInterval = setInterval(() => {
+            const spawnCount = Math.floor(Math.random() * 2) + 2;
             for(let i = 0; i < spawnCount; i++) {
                 this.spawnAnimal();
             }
         }, 800);
+    }
+
+    endGame() {
+        clearInterval(this.gameInterval);
+        clearInterval(this.timerInterval);
+        
+        // Xóa tất cả animals
+        this.cells.forEach(cell => {
+            while (cell.firstChild) {
+                cell.removeChild(cell.firstChild);
+            }
+        });
+
+        // Hiển thị điểm số cuối cùng
+        alert(`Trò chơi kết thúc! Điểm của bạn: ${this.score}`);
+        
+        // Reload trang để chơi lại
+        location.reload();
     }
 
     spawnAnimal() {
