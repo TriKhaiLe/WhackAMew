@@ -19,6 +19,8 @@ class Game {
         this.sounds.point.volume = 0.0;
         this.sounds.damage.volume = 0.4;
 
+        this.isDisabled = false;
+
         this.init();
     }
 
@@ -70,6 +72,8 @@ class Game {
         img.dataset.points = selectedAnimal.points;
         
         img.addEventListener('mouseover', () => {
+            if (this.isDisabled) return;
+
             img.classList.add('disappear');
             
             img.addEventListener('animationend', () => {
@@ -92,6 +96,14 @@ class Game {
                 flash.addEventListener('animationend', () => {
                     document.body.removeChild(flash);
                 });
+
+                this.isDisabled = true;
+                this.gameBoard.style.pointerEvents = 'none';
+                
+                setTimeout(() => {
+                    this.isDisabled = false;
+                    this.gameBoard.style.pointerEvents = 'auto';
+                }, 2000);
             } else {
                 this.sounds.point.currentTime = 0;
                 this.sounds.point.play();
