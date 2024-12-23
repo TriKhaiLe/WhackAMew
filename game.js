@@ -26,17 +26,23 @@ class Game {
     }
 
     startGame() {
-        setInterval(() => this.spawnAnimal(), 1000);
+        // Spawn nhiều object hơn bằng cách:
+        // 1. Giảm interval xuống 500ms (từ 1000ms)
+        // 2. Mỗi lần spawn sẽ tạo 2-3 object
+        setInterval(() => {
+            const spawnCount = Math.floor(Math.random() * 2) + 2; // Random 2-3 object
+            for(let i = 0; i < spawnCount; i++) {
+                this.spawnAnimal();
+            }
+        }, 500);
     }
 
     spawnAnimal() {
-        // Chọn ô ngẫu nhiên
         const emptyCells = this.cells.filter(cell => !cell.hasChildNodes());
         if (emptyCells.length === 0) return;
         
         const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
         
-        // Chọn con vật ngẫu nhiên dựa trên xác suất
         const random = Math.random();
         let selectedAnimal = this.animals[0];
         let probabilitySum = 0;
@@ -49,13 +55,11 @@ class Game {
             }
         }
 
-        // Tạo và hiển thị con vật
         const img = document.createElement('img');
         img.src = selectedAnimal.image;
         img.className = 'animal';
         img.dataset.points = selectedAnimal.points;
         
-        // Xử lý sự kiện hover
         img.addEventListener('mouseover', () => {
             this.score += selectedAnimal.points;
             this.scoreElement.textContent = this.score;
@@ -64,14 +68,13 @@ class Game {
 
         randomCell.appendChild(img);
         
-        // Tự động ẩn con vật sau 2 giây
+        // Giảm thời gian tồn tại xuống 1.5 giây (từ 2 giây)
         setTimeout(() => {
             if (randomCell.contains(img)) {
                 randomCell.removeChild(img);
             }
-        }, 2000);
+        }, 1500);
     }
 }
 
-// Khởi tạo game
 new Game(); 
