@@ -5,18 +5,21 @@ class Game {
         this.scoreElement = document.getElementById('score');
         this.cells = [];
         this.animals = [
-            { image: 'mouse.png', points: 10, probability: 0.7 },
+            { image: 'mouse.png', points: 10, probability: 0.6 },
             { image: 'rabbit.png', points: 20, probability: 0.2 },
-            { image: 'snake.png', points: -30, probability: 0.1 }
-        ];
+            { image: 'snake.png', points: -30, probability: 0.1 },
+            { image: 'star.png', points: 0, probability: 0.1 } // Vật phẩm hiếm mới
+                ];
 
         this.sounds = {
             point: new Audio('sounds/point.mp3'),
-            damage: new Audio('sounds/damage.mp3')
-        };
+            damage: new Audio('sounds/damage.mp3'),
+            bonus: new Audio('sounds/point.mp3') // Thêm âm thanh mới
+                 };
         
         // Điều chỉnh âm lượng
         this.sounds.point.volume = 0.0;
+        this.sounds.bonus.volume = 0.4;
         this.sounds.damage.volume = 0.4;
 
         this.isDisabled = false;
@@ -104,6 +107,17 @@ class Game {
                     this.isDisabled = false;
                     this.gameBoard.style.pointerEvents = 'auto';
                 }, 2000);
+            } else if (selectedAnimal.image === 'star.png') {
+                this.sounds.bonus.currentTime = 0;
+                this.sounds.bonus.play();
+                
+                const flash = document.createElement('div');
+                flash.className = 'green-flash';
+                document.body.appendChild(flash);
+                
+                flash.addEventListener('animationend', () => {
+                    document.body.removeChild(flash);
+                });
             } else {
                 this.sounds.point.currentTime = 0;
                 this.sounds.point.play();
