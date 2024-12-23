@@ -63,6 +63,19 @@ class Game {
         img.addEventListener('mouseover', () => {
             this.score += selectedAnimal.points;
             this.scoreElement.textContent = this.score;
+            
+            // Thêm hiệu ứng đỏ khi chạm vào rắn (snake)
+            if (selectedAnimal.image === 'snake.png') {
+                const flash = document.createElement('div');
+                flash.className = 'red-flash';
+                document.body.appendChild(flash);
+                
+                // Xóa element flash sau khi animation kết thúc
+                flash.addEventListener('animationend', () => {
+                    document.body.removeChild(flash);
+                });
+            }
+            
             randomCell.removeChild(img);
         });
 
