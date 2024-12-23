@@ -61,30 +61,38 @@ class Game {
         img.dataset.points = selectedAnimal.points;
         
         img.addEventListener('mouseover', () => {
+            img.classList.add('disappear');
+            
+            img.addEventListener('animationend', () => {
+                if (randomCell.contains(img)) {
+                    randomCell.removeChild(img);
+                }
+            });
+
             this.score += selectedAnimal.points;
             this.scoreElement.textContent = this.score;
             
-            // Thêm hiệu ứng đỏ khi chạm vào rắn (snake)
             if (selectedAnimal.image === 'snake.png') {
                 const flash = document.createElement('div');
                 flash.className = 'red-flash';
                 document.body.appendChild(flash);
                 
-                // Xóa element flash sau khi animation kết thúc
                 flash.addEventListener('animationend', () => {
                     document.body.removeChild(flash);
                 });
             }
-            
-            randomCell.removeChild(img);
         });
 
         randomCell.appendChild(img);
         
-        // Giảm thời gian tồn tại xuống 1.5 giây (từ 2 giây)
         setTimeout(() => {
             if (randomCell.contains(img)) {
-                randomCell.removeChild(img);
+                img.classList.add('disappear');
+                img.addEventListener('animationend', () => {
+                    if (randomCell.contains(img)) {
+                        randomCell.removeChild(img);
+                    }
+                });
             }
         }, 1500);
     }
