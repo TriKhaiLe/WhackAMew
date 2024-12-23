@@ -9,7 +9,16 @@ class Game {
             { image: 'rabbit.png', points: 20, probability: 0.2 },
             { image: 'snake.png', points: -30, probability: 0.1 }
         ];
+
+        this.sounds = {
+            point: new Audio('sounds/point.mp3'),
+            damage: new Audio('sounds/damage.mp3')
+        };
         
+        // Điều chỉnh âm lượng
+        this.sounds.point.volume = 0.0;
+        this.sounds.damage.volume = 0.4;
+
         this.init();
     }
 
@@ -73,6 +82,9 @@ class Game {
             this.scoreElement.textContent = this.score;
             
             if (selectedAnimal.image === 'snake.png') {
+                this.sounds.damage.currentTime = 0;
+                this.sounds.damage.play();
+                
                 const flash = document.createElement('div');
                 flash.className = 'red-flash';
                 document.body.appendChild(flash);
@@ -80,6 +92,9 @@ class Game {
                 flash.addEventListener('animationend', () => {
                     document.body.removeChild(flash);
                 });
+            } else {
+                this.sounds.point.currentTime = 0;
+                this.sounds.point.play();
             }
         });
 
