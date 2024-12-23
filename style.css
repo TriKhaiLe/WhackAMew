@@ -68,13 +68,14 @@
     bottom: 0;
     background-color: rgba(255, 0, 0, 0.3);
     pointer-events: none;
-    animation: flash 0.5s ease-in-out;
+    animation: flash-long 2s ease-in-out;
     z-index: 1000;
 }
 
-@keyframes flash {
+@keyframes flash-long {
     0% { opacity: 0; }
-    50% { opacity: 1; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
     100% { opacity: 0; }
 }
 
@@ -86,7 +87,26 @@
     bottom: 0;
     background-color: rgba(0, 255, 0, 0.3);
     pointer-events: none;
-    animation: flash 0.5s ease-in-out;
+    animation: flash-long 1s ease-in-out;
     z-index: 1000;
+}
+
+.start-screen {
+    text-align: center;
+    padding: 20px;
+}
+
+.start-screen button {
+    padding: 10px 20px;
+    font-size: 18px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+.hidden {
+    display: none;
 }
   

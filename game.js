@@ -24,6 +24,35 @@ class Game {
 
         this.isDisabled = false;
 
+        this.startScreen = document.getElementById('start-screen');
+        this.gameBoard.style.display = 'none'; // Ẩn game board ban đầu
+        
+        document.getElementById('start-button').addEventListener('click', () => {
+            // Khởi tạo âm thanh
+            Promise.all([
+                this.sounds.point.play(),
+                this.sounds.damage.play(),
+                this.sounds.bonus.play()
+            ]).then(() => {
+                // Dừng ngay lập tức
+                this.sounds.point.pause();
+                this.sounds.damage.pause();
+                this.sounds.bonus.pause();
+                
+                // Reset time
+                this.sounds.point.currentTime = 0;
+                this.sounds.damage.currentTime = 0;
+                this.sounds.bonus.currentTime = 0;
+                
+                // Bắt đầu game
+                this.startScreen.classList.add('hidden');
+                this.gameBoard.style.display = 'grid';
+                this.startGame();
+            }).catch(error => {
+                console.error('Không thể khởi tạo âm thanh:', error);
+            });
+        });
+
         this.init();
     }
 
@@ -35,8 +64,6 @@ class Game {
             this.gameBoard.appendChild(cell);
             this.cells.push(cell);
         }
-
-        this.startGame();
     }
 
     startGame() {
@@ -91,15 +118,8 @@ class Game {
             if (selectedAnimal.image === 'snake.png') {
                 this.sounds.damage.currentTime = 0;
                 this.sounds.damage.play();
+                this.createFlash('red-flash');
                 
-                const flash = document.createElement('div');
-                flash.className = 'red-flash';
-                document.body.appendChild(flash);
-                
-                flash.addEventListener('animationend', () => {
-                    document.body.removeChild(flash);
-                });
-
                 this.isDisabled = true;
                 this.gameBoard.style.pointerEvents = 'none';
                 
@@ -110,14 +130,7 @@ class Game {
             } else if (selectedAnimal.image === 'star.png') {
                 this.sounds.bonus.currentTime = 0;
                 this.sounds.bonus.play();
-                
-                const flash = document.createElement('div');
-                flash.className = 'green-flash';
-                document.body.appendChild(flash);
-                
-                flash.addEventListener('animationend', () => {
-                    document.body.removeChild(flash);
-                });
+                this.createFlash('green-flash');
             } else {
                 this.sounds.point.currentTime = 0;
                 this.sounds.point.play();
@@ -136,6 +149,25 @@ class Game {
                 });
             }
         }, 1500);
+    }
+
+    createFlash(className) {
+        // Xóa flash cũ nếu có
+        const oldFlash = document.querySelector('.' + className);
+        if (oldFlash) {
+            document.body.removeChild(oldFlash);
+        }
+        
+        // Tạo flash mới
+        const flash = document.createElement('div');
+        flash.className = className;
+        document.body.appendChild(flash);
+        
+        flash.addEventListener('animationend', () => {
+            if (document.body.contains(flash)) {
+                document.body.removeChild(flash);
+            }
+        });
     }
 }
 
