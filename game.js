@@ -8,7 +8,7 @@ class Game {
             { image: 'mouse.png', points: 10, probability: 0.6 },
             { image: 'rabbit.png', points: 20, probability: 0.2 },
             { image: 'snake.png', points: -30, probability: 0.1 },
-            { image: 'star.png', points: 30, probability: 0.1 } // Vật phẩm hiếm mới
+            { image: 'star.png', points: 0, probability: 0.1 } // Vật phẩm hiếm mới
                 ];
 
         this.sounds = {
