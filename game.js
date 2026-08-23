@@ -3,7 +3,11 @@ class Game {
         this.score = 0;
         this.gameBoard = document.querySelector('.game-board');
         this.scoreElement = document.getElementById('score');
+        this.highScoreElement = document.getElementById('high-score');
+        this.durationInput = document.getElementById('duration-input');
+        this.infiniteInput = document.getElementById('infinite-input');
         this.cells = [];
+        this.highScore = Number(localStorage.getItem('whackAMewHighScore')) || 0;
         this.animals = [
             { image: 'mouse.png', points: 10, probability: 0.6 },
             { image: 'rabbit.png', points: 20, probability: 0.2 },
@@ -23,34 +27,26 @@ class Game {
         this.sounds.damage.volume = 0.4;
 
         this.isDisabled = false;
+        this.isRunning = false;
+        this.isSwiping = false;
+        this.highScoreElement.textContent = this.highScore;
 
         this.startScreen = document.getElementById('start-screen');
         this.gameBoard.style.display = 'none'; // Ẩn game board ban đầu
+        this.gameBoard.addEventListener('pointerdown', event => {
+            this.isSwiping = event.pointerType === 'touch';
+            if (this.isSwiping) this.createTrail(event.clientX, event.clientY);
+        });
+        this.gameBoard.addEventListener('pointermove', event => {
+            if (this.isSwiping) this.createTrail(event.clientX, event.clientY);
+        });
+        this.gameBoard.addEventListener('pointerup', () => { this.isSwiping = false; });
+        this.gameBoard.addEventListener('pointercancel', () => { this.isSwiping = false; });
         
         document.getElementById('start-button').addEventListener('click', () => {
-            // Khởi tạo âm thanh
-            Promise.all([
-                this.sounds.point.play(),
-                this.sounds.damage.play(),
-                this.sounds.bonus.play()
-            ]).then(() => {
-                // Dừng ngay lập tức
-                this.sounds.point.pause();
-                this.sounds.damage.pause();
-                this.sounds.bonus.pause();
-                
-                // Reset time
-                this.sounds.point.currentTime = 0;
-                this.sounds.damage.currentTime = 0;
-                this.sounds.bonus.currentTime = 0;
-                
-                // Bắt đầu game
-                this.startScreen.classList.add('hidden');
-                this.gameBoard.style.display = 'grid';
-                this.startGame();
-            }).catch(error => {
-                console.error('Không thể khởi tạo âm thanh:', error);
-            });
+            this.startScreen.classList.add('hidden');
+            this.gameBoard.style.display = 'grid';
+            this.startGame();
         });
 
         this.init();
@@ -72,15 +68,22 @@ class Game {
     }
 
     startGame() {
+        this.score = 0;
+        this.scoreElement.textContent = this.score;
+        this.isRunning = true;
+        this.isDisabled = false;
+        this.timeLeft = this.infiniteInput.checked ? Infinity : Math.max(15, Number(this.durationInput.value) || 15);
+        this.durationInput.value = this.timeLeft === Infinity ? 15 : this.timeLeft;
+        this.timerElement.textContent = this.timeLeft === Infinity ? '∞' : this.timeLeft;
+
         // Khởi tạo timer
-        this.timerInterval = setInterval(() => {
-            this.timeLeft--;
-            this.timerElement.textContent = this.timeLeft;
-            
-            if (this.timeLeft <= 0) {
-                this.endGame();
-            }
-        }, 1000);
+        if (this.timeLeft !== Infinity) {
+            this.timerInterval = setInterval(() => {
+                this.timeLeft--;
+                this.timerElement.textContent = this.timeLeft;
+                if (this.timeLeft <= 0) this.endGame();
+            }, 1000);
+        }
 
         // Spawn animals
         this.gameInterval = setInterval(() => {
@@ -92,8 +95,15 @@ class Game {
     }
 
     endGame() {
+        if (!this.isRunning) return;
+        this.isRunning = false;
         clearInterval(this.gameInterval);
         clearInterval(this.timerInterval);
+        if (this.score > this.highScore) {
+            this.highScore = this.score;
+            localStorage.setItem('whackAMewHighScore', this.highScore);
+            this.highScoreElement.textContent = this.highScore;
+        }
         
         // Xóa tất cả animals
         this.cells.forEach(cell => {
@@ -103,10 +113,10 @@ class Game {
         });
 
         // Hiển thị điểm số cuối cùng
-        alert(`Trò chơi kết thúc! Điểm của bạn: ${this.score}`);
-        
-        // Reload trang để chơi lại
-        location.reload();
+        alert(`Trò chơi kết thúc! Điểm của bạn: ${this.score}. Kỷ lục: ${this.highScore}`);
+        this.startScreen.classList.remove('hidden');
+        this.gameBoard.style.display = 'none';
+        this.timerElement.textContent = '15';
     }
 
     spawnAnimal() {
@@ -131,9 +141,9 @@ class Game {
         img.src = selectedAnimal.image;
         img.className = 'animal';
         img.dataset.points = selectedAnimal.points;
-        
-        img.addEventListener('mouseover', () => {
-            if (this.isDisabled) return;
+        const hit = () => {
+            if (this.isDisabled || !this.isRunning || img.dataset.hit) return;
+            img.dataset.hit = 'true';
 
             img.classList.add('disappear');
             
@@ -166,7 +176,10 @@ class Game {
                 this.sounds.point.currentTime = 0;
                 this.sounds.point.play();
             }
-        });
+        };
+
+        img.addEventListener('pointerenter', hit);
+        img.addEventListener('pointerdown', hit);
 
         randomCell.appendChild(img);
         
@@ -199,6 +212,15 @@ class Game {
                 document.body.removeChild(flash);
             }
         });
+    }
+
+    createTrail(x, y) {
+        const trail = document.createElement('span');
+        trail.className = 'touch-trail';
+        trail.style.left = `${x}px`;
+        trail.style.top = `${y}px`;
+        document.body.appendChild(trail);
+        trail.addEventListener('animationend', () => trail.remove());
     }
 }
 

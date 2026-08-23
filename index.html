@@ -1,18 +1,37 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Game Đập Chuột</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="game-container">
         <div id="start-screen" class="start-screen">
+            <p class="eyebrow">WHACK-A-MEW</p>
             <h1>Game Đập Chuột</h1>
+            <p class="intro">Chạm, rê hoặc vuốt qua các ô để ghi điểm.</p>
+            <div class="setup-panel">
+                <label for="duration-input">Thời lượng ván (giây)</label>
+                <div class="duration-control">
+                    <input id="duration-input" type="number" min="15" step="5" value="15">
+                    <label class="infinite-option"><input id="infinite-input" type="checkbox"> Vô hạn</label>
+                </div>
+                <p class="hint">Tối thiểu 15 giây. Chọn vô hạn để bỏ giới hạn thời gian.</p>
+            </div>
+            <div class="best-score">Kỷ lục: <strong id="high-score">0</strong></div>
+            <div class="item-guide" aria-label="Hướng dẫn vật phẩm">
+                <div><img src="mouse.png" alt="Chuột"><span>+10</span></div>
+                <div><img src="rabbit.png" alt="Thỏ"><span>+20</span></div>
+                <div><img src="star.png" alt="Sao"><span>+30</span></div>
+                <div><img src="snake.png" alt="Rắn"><span>-30</span></div>
+            </div>
+            <p class="warning">Cẩn thận: chạm vào rắn sẽ khóa bàn chơi trong 2 giây.</p>
             <button id="start-button">Bắt đầu chơi</button>
         </div>
         <div class="score-board">
             Điểm: <span id="score">0</span>
-            <div class="timer">Thời gian: <span id="time">15</span>s</div>
+            <div class="timer">Thời gian: <span id="time">15</span></div>
         </div>
         <div class="game-board">
             <!-- Các ô game sẽ được tạo bằng JavaScript -->
