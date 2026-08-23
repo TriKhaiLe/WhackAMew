@@ -28,17 +28,24 @@ class Game {
 
         this.isDisabled = false;
         this.isRunning = false;
+        this.isPaused = false;
         this.isSwiping = false;
         this.highScoreElement.textContent = this.highScore;
 
         this.startScreen = document.getElementById('start-screen');
+        this.pauseButton = document.getElementById('pause-button');
         this.gameBoard.style.display = 'none'; // Ẩn game board ban đầu
+        this.pauseButton.style.display = 'none';
+        document.getElementById('quit-button').style.display = 'none';
         this.gameBoard.addEventListener('pointerdown', event => {
             this.isSwiping = event.pointerType === 'touch';
             if (this.isSwiping) this.createTrail(event.clientX, event.clientY);
+            this.hitAnimalAt(event.clientX, event.clientY);
         });
         this.gameBoard.addEventListener('pointermove', event => {
-            if (this.isSwiping) this.createTrail(event.clientX, event.clientY);
+            if (!this.isSwiping) return;
+            this.createTrail(event.clientX, event.clientY);
+            this.hitAnimalAt(event.clientX, event.clientY);
         });
         this.gameBoard.addEventListener('pointerup', () => { this.isSwiping = false; });
         this.gameBoard.addEventListener('pointercancel', () => { this.isSwiping = false; });
@@ -46,8 +53,12 @@ class Game {
         document.getElementById('start-button').addEventListener('click', () => {
             this.startScreen.classList.add('hidden');
             this.gameBoard.style.display = 'grid';
+            this.pauseButton.style.display = 'inline-block';
+            document.getElementById('quit-button').style.display = 'inline-block';
             this.startGame();
         });
+        this.pauseButton.addEventListener('click', () => this.togglePause());
+        document.getElementById('quit-button').addEventListener('click', () => this.quitGame());
 
         this.init();
 
@@ -71,32 +82,20 @@ class Game {
         this.score = 0;
         this.scoreElement.textContent = this.score;
         this.isRunning = true;
+        this.isPaused = false;
         this.isDisabled = false;
+        this.pauseButton.textContent = 'Tạm dừng';
         this.timeLeft = this.infiniteInput.checked ? Infinity : Math.max(15, Number(this.durationInput.value) || 15);
         this.durationInput.value = this.timeLeft === Infinity ? 15 : this.timeLeft;
         this.timerElement.textContent = this.timeLeft === Infinity ? '∞' : this.timeLeft;
 
-        // Khởi tạo timer
-        if (this.timeLeft !== Infinity) {
-            this.timerInterval = setInterval(() => {
-                this.timeLeft--;
-                this.timerElement.textContent = this.timeLeft;
-                if (this.timeLeft <= 0) this.endGame();
-            }, 1000);
-        }
-
-        // Spawn animals
-        this.gameInterval = setInterval(() => {
-            const spawnCount = Math.floor(Math.random() * 2) + 2;
-            for(let i = 0; i < spawnCount; i++) {
-                this.spawnAnimal();
-            }
-        }, 800);
+        this.startIntervals();
     }
 
-    endGame() {
+    endGame(showAlert = true) {
         if (!this.isRunning) return;
         this.isRunning = false;
+        this.isPaused = false;
         clearInterval(this.gameInterval);
         clearInterval(this.timerInterval);
         if (this.score > this.highScore) {
@@ -113,10 +112,52 @@ class Game {
         });
 
         // Hiển thị điểm số cuối cùng
-        alert(`Trò chơi kết thúc! Điểm của bạn: ${this.score}. Kỷ lục: ${this.highScore}`);
+        if (showAlert) {
+            alert(`Trò chơi kết thúc! Điểm của bạn: ${this.score}. Kỷ lục: ${this.highScore}`);
+        }
         this.startScreen.classList.remove('hidden');
         this.gameBoard.style.display = 'none';
         this.timerElement.textContent = '15';
+        this.pauseButton.textContent = 'Tạm dừng';
+        this.pauseButton.style.display = 'none';
+        document.getElementById('quit-button').style.display = 'none';
+        this.gameBoard.classList.remove('paused');
+    }
+
+    togglePause() {
+        if (!this.isRunning) return;
+
+        this.isPaused = !this.isPaused;
+        if (this.isPaused) {
+            clearInterval(this.gameInterval);
+            clearInterval(this.timerInterval);
+            this.pauseButton.textContent = 'Tiếp tục';
+            this.gameBoard.classList.add('paused');
+        } else {
+            this.pauseButton.textContent = 'Tạm dừng';
+            this.gameBoard.classList.remove('paused');
+            this.startIntervals();
+        }
+    }
+
+    quitGame() {
+        if (!this.isRunning) return;
+        this.endGame(false);
+    }
+
+    startIntervals() {
+        if (this.timeLeft !== Infinity) {
+            this.timerInterval = setInterval(() => {
+                this.timeLeft--;
+                this.timerElement.textContent = this.timeLeft;
+                if (this.timeLeft <= 0) this.endGame();
+            }, 1000);
+        }
+
+        this.gameInterval = setInterval(() => {
+            const spawnCount = Math.floor(Math.random() * 2) + 2;
+            for (let i = 0; i < spawnCount; i++) this.spawnAnimal();
+        }, 800);
     }
 
     spawnAnimal() {
@@ -142,7 +183,7 @@ class Game {
         img.className = 'animal';
         img.dataset.points = selectedAnimal.points;
         const hit = () => {
-            if (this.isDisabled || !this.isRunning || img.dataset.hit) return;
+            if (this.isDisabled || !this.isRunning || this.isPaused || img.dataset.hit) return;
             img.dataset.hit = 'true';
 
             img.classList.add('disappear');
@@ -180,6 +221,7 @@ class Game {
 
         img.addEventListener('pointerenter', hit);
         img.addEventListener('pointerdown', hit);
+        img.hitAnimal = hit;
 
         randomCell.appendChild(img);
         
@@ -212,6 +254,14 @@ class Game {
                 document.body.removeChild(flash);
             }
         });
+    }
+
+    hitAnimalAt(x, y) {
+        if (this.isDisabled || !this.isRunning || this.isPaused) return;
+        const element = document.elementFromPoint(x, y);
+        if (element && element.classList.contains('animal') && element.hitAnimal) {
+            element.hitAnimal();
+        }
     }
 
     createTrail(x, y) {

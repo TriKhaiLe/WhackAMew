@@ -161,6 +161,11 @@ body::before {
     color: #cbd5e1;
 }
 
+.game-controls { display: flex; justify-content: center; gap: 10px; margin: -8px 0 20px; }
+.game-controls button { padding: 8px 14px; border: 1px solid #64748b; border-radius: 6px; background: #1e293b; color: #f8fafc; cursor: pointer; font: 700 14px 'DM Sans', sans-serif; }
+.game-controls button:hover { background: #334155; }
+.game-board.paused { opacity: .55; }
+
 .touch-trail { position: fixed; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: #fbbf24; box-shadow: 0 0 14px #f59e0b; pointer-events: none; animation: trail-fade .45s ease-out forwards; z-index: 10; }
 @keyframes trail-fade { from { opacity: .9; transform: scale(1); } to { opacity: 0; transform: scale(2.8); } }
 

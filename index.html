@@ -24,14 +24,18 @@
                 <div><img src="mouse.png" alt="Chuột"><span>+10</span></div>
                 <div><img src="rabbit.png" alt="Thỏ"><span>+20</span></div>
                 <div><img src="star.png" alt="Sao"><span>+30</span></div>
-                <div><img src="snake.png" alt="Rắn"><span>-30</span></div>
+                <div><img src="snake.png" alt="Khoai tây"><span>-30</span></div>
             </div>
-            <p class="warning">Cẩn thận: chạm vào rắn sẽ khóa bàn chơi trong 2 giây.</p>
+            <p class="warning">Cẩn thận: chạm vào khoai tây sẽ khóa bàn chơi trong 2 giây.</p>
             <button id="start-button">Bắt đầu chơi</button>
         </div>
         <div class="score-board">
             Điểm: <span id="score">0</span>
             <div class="timer">Thời gian: <span id="time">15</span></div>
+        </div>
+        <div class="game-controls" aria-label="Điều khiển trò chơi">
+            <button id="pause-button" type="button">Tạm dừng</button>
+            <button id="quit-button" type="button">Thoát</button>
         </div>
         <div class="game-board">
             <!-- Các ô game sẽ được tạo bằng JavaScript -->
