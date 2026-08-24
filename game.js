@@ -20,11 +20,20 @@ class Game {
             damage: new Audio('sounds/damage.mp3'),
             bonus: new Audio('sounds/point.mp3') // Thêm âm thanh mới
                  };
+
+        this.backgroundMusic = {
+            waiting: new Audio('sounds/bg-music-1.mp3'),
+            playing: new Audio('sounds/bg-music-2.mp3')
+        };
         
         // Điều chỉnh âm lượng
         this.sounds.point.volume = 0.0;
         this.sounds.bonus.volume = 0.4;
         this.sounds.damage.volume = 0.4;
+        this.backgroundMusic.waiting.loop = true;
+        this.backgroundMusic.playing.loop = true;
+        this.backgroundMusic.waiting.volume = 0.35;
+        this.backgroundMusic.playing.volume = 0.45;
 
         this.isDisabled = false;
         this.isRunning = false;
@@ -37,6 +46,10 @@ class Game {
         this.gameBoard.style.display = 'none'; // Ẩn game board ban đầu
         this.pauseButton.style.display = 'none';
         document.getElementById('quit-button').style.display = 'none';
+        document.addEventListener('pointerdown', () => {
+            if (!this.isRunning) this.switchBackgroundMusic('waiting');
+        }, { once: true });
+        this.switchBackgroundMusic('waiting');
         this.gameBoard.addEventListener('pointerdown', event => {
             this.isSwiping = event.pointerType === 'touch';
             if (this.isSwiping) this.createTrail(event.clientX, event.clientY);
@@ -55,6 +68,7 @@ class Game {
             this.gameBoard.style.display = 'grid';
             this.pauseButton.style.display = 'inline-block';
             document.getElementById('quit-button').style.display = 'inline-block';
+            this.switchBackgroundMusic('playing');
             this.startGame();
         });
         this.pauseButton.addEventListener('click', () => this.togglePause());
@@ -122,6 +136,7 @@ class Game {
         this.pauseButton.style.display = 'none';
         document.getElementById('quit-button').style.display = 'none';
         this.gameBoard.classList.remove('paused');
+        this.switchBackgroundMusic('waiting');
     }
 
     togglePause() {
@@ -133,10 +148,12 @@ class Game {
             clearInterval(this.timerInterval);
             this.pauseButton.textContent = 'Tiếp tục';
             this.gameBoard.classList.add('paused');
+            this.backgroundMusic.playing.pause();
         } else {
             this.pauseButton.textContent = 'Tạm dừng';
             this.gameBoard.classList.remove('paused');
             this.startIntervals();
+            this.safePlay(this.backgroundMusic.playing);
         }
     }
 
@@ -271,6 +288,26 @@ class Game {
         trail.style.top = `${y}px`;
         document.body.appendChild(trail);
         trail.addEventListener('animationend', () => trail.remove());
+    }
+
+    safePlay(audio) {
+        const playPromise = audio.play();
+        if (playPromise && playPromise.catch) {
+            playPromise.catch(() => {});
+        }
+    }
+
+    switchBackgroundMusic(mode) {
+        if (mode === 'playing') {
+            this.backgroundMusic.waiting.pause();
+            this.backgroundMusic.waiting.currentTime = 0;
+            this.safePlay(this.backgroundMusic.playing);
+            return;
+        }
+
+        this.backgroundMusic.playing.pause();
+        this.backgroundMusic.playing.currentTime = 0;
+        this.safePlay(this.backgroundMusic.waiting);
     }
 }
 
