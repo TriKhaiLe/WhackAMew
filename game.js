@@ -43,9 +43,10 @@ class Game {
 
         this.startScreen = document.getElementById('start-screen');
         this.pauseButton = document.getElementById('pause-button');
+        this.quitButton = document.getElementById('quit-button');
         this.gameBoard.style.display = 'none'; // Ẩn game board ban đầu
         this.pauseButton.style.display = 'none';
-        document.getElementById('quit-button').style.display = 'none';
+        this.quitButton.style.display = 'none';
         document.addEventListener('pointerdown', () => {
             if (!this.isRunning) this.switchBackgroundMusic('waiting');
         }, { once: true });
@@ -67,12 +68,16 @@ class Game {
             this.startScreen.classList.add('hidden');
             this.gameBoard.style.display = 'grid';
             this.pauseButton.style.display = 'inline-block';
-            document.getElementById('quit-button').style.display = 'inline-block';
+            this.quitButton.style.display = 'inline-block';
             this.switchBackgroundMusic('playing');
             this.startGame();
         });
         this.pauseButton.addEventListener('click', () => this.togglePause());
-        document.getElementById('quit-button').addEventListener('click', () => this.quitGame());
+        this.quitButton.addEventListener('click', () => this.quitGame());
+
+        this.selectedDuration = 15;
+        this.profile = null;
+        this.initProfileIntegration();
 
         this.init();
 
@@ -100,6 +105,7 @@ class Game {
         this.isDisabled = false;
         this.pauseButton.textContent = 'Tạm dừng';
         this.timeLeft = this.infiniteInput.checked ? Infinity : Math.max(15, Number(this.durationInput.value) || 15);
+        this.selectedDuration = this.timeLeft;
         this.durationInput.value = this.timeLeft === Infinity ? 15 : this.timeLeft;
         this.timerElement.textContent = this.timeLeft === Infinity ? '∞' : this.timeLeft;
 
@@ -117,6 +123,8 @@ class Game {
             localStorage.setItem('whackAMewHighScore', this.highScore);
             this.highScoreElement.textContent = this.highScore;
         }
+
+        this.syncHighScoreWithServer();
         
         // Xóa tất cả animals
         this.cells.forEach(cell => {
@@ -134,7 +142,7 @@ class Game {
         this.timerElement.textContent = '15';
         this.pauseButton.textContent = 'Tạm dừng';
         this.pauseButton.style.display = 'none';
-        document.getElementById('quit-button').style.display = 'none';
+        this.quitButton.style.display = 'none';
         this.gameBoard.classList.remove('paused');
         this.switchBackgroundMusic('waiting');
     }
@@ -308,6 +316,41 @@ class Game {
         this.backgroundMusic.playing.pause();
         this.backgroundMusic.playing.currentTime = 0;
         this.safePlay(this.backgroundMusic.waiting);
+    }
+
+    initProfileIntegration() {
+        if (!window.ProfileIntegration) return;
+
+        this.profile = new window.ProfileIntegration({
+            onServerHighScoreLoaded: (scorePackage) => {
+                const remoteScore = Number(scorePackage?.highScore || 0);
+                if (remoteScore > this.highScore) {
+                    this.highScore = remoteScore;
+                    localStorage.setItem('whackAMewHighScore', this.highScore);
+                    this.highScoreElement.textContent = this.highScore;
+                }
+            },
+            onAuthChanged: (user) => {
+                if (user && this.highScore > 0) {
+                    this.syncHighScoreWithServer();
+                }
+            }
+        });
+    }
+
+    getScoreTimeSpan() {
+        if (this.selectedDuration === Infinity) return 999999;
+        return Number(this.selectedDuration) || 15;
+    }
+
+    async syncHighScoreWithServer() {
+        if (!this.profile || !this.highScore) return;
+
+        try {
+            await this.profile.updateHighScore(this.highScore, this.getScoreTimeSpan());
+        } catch {
+            // Network/auth errors should not block gameplay.
+        }
     }
 }
 

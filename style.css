@@ -20,10 +20,113 @@ body::before {
 }
 
 .game-container { position: relative; max-width: 800px; min-height: 100vh; margin: 0 auto; padding: 32px 20px 44px; }
-.game-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
+
+.top-actions {
+    position: fixed;
+    top: 12px;
+    right: 10px;
+    z-index: 1200;
+    display: flex;
+    gap: 8px;
+}
+
+.top-actions button {
+    min-height: 38px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid #64748b;
+    background: rgba(30, 41, 59, 0.9);
+    color: #f8fafc;
+    font: 700 13px 'DM Sans', sans-serif;
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1300;
+    display: grid;
+    place-items: end center;
+    padding: 10px;
+    background: rgba(15, 23, 42, 0.75);
+}
+
+.modal-card {
+    width: min(100%, 430px);
+    max-height: min(88vh, 680px);
+    overflow: auto;
+    border-radius: 16px;
+    padding: 16px;
+    background: #0f172a;
+    border: 1px solid #334155;
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.35);
+}
+
+.modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.modal-head h2 { margin: 0; font: 700 22px 'Space Grotesk', sans-serif; }
+.modal-subtitle { margin: 12px 0; color: #cbd5e1; }
+
+.stack-form {
+    display: grid;
+    gap: 8px;
+}
+
+.stack-form input {
+    min-height: 40px;
+    border-radius: 9px;
+    border: 1px solid #475569;
+    background: #1e293b;
+    color: #f8fafc;
+    padding: 8px 10px;
+    font: inherit;
+}
+
+.stack-form button,
+.secondary,
+.icon-close {
+    min-height: 38px;
+    border-radius: 9px;
+    border: 1px solid #64748b;
+    background: #1e293b;
+    color: #f8fafc;
+    padding: 8px 12px;
+    font: 700 14px 'DM Sans', sans-serif;
+}
+
+.icon-close {
+    min-width: 38px;
+    padding: 0;
+    border-radius: 50%;
+}
+
+.feedback { min-height: 22px; margin: 10px 0 8px; color: #93c5fd; }
+.feedback.error { color: #fca5a5; }
+
+.leaderboard-list {
+    margin: 14px 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 8px;
+}
+
+.leaderboard-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 10px;
+    border: 1px solid #334155;
+    padding: 9px 11px;
+    background: rgba(30, 41, 59, 0.75);
+}
+
+.leaderboard-row.me {
+    border-color: #fbbf24;
 }
 
 .score-board {
@@ -173,5 +276,17 @@ body::before {
     .game-container { padding: 20px 12px 32px; }
     .game-board { gap: 7px; }
     .duration-control { align-items: flex-start; flex-direction: column; gap: 10px; }
+}
+
+@media (min-width: 720px) {
+    .top-actions {
+        top: 18px;
+        right: 18px;
+    }
+
+    .modal {
+        place-items: center;
+        padding: 24px;
+    }
 }
   

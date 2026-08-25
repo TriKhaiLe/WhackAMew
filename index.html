@@ -6,6 +6,43 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="top-actions" aria-label="Tai khoan va bang xep hang">
+        <button id="account-toggle-button" type="button">Dang nhap</button>
+        <button id="leaderboard-toggle-button" type="button">BXH</button>
+    </div>
+
+    <div id="auth-modal" class="modal hidden" aria-hidden="true">
+        <div class="modal-card">
+            <div class="modal-head">
+                <h2>Dang nhap / Dang ky</h2>
+                <button id="auth-close-button" type="button" class="icon-close" aria-label="Dong">x</button>
+            </div>
+            <p id="user-badge" class="modal-subtitle">Chua dang nhap</p>
+            <form id="auth-form" class="stack-form">
+                <label for="auth-username">Username</label>
+                <input id="auth-username" maxlength="100" autocomplete="username" required>
+                <label for="auth-password">Password</label>
+                <input id="auth-password" type="password" maxlength="100" autocomplete="current-password" required>
+                <button type="submit">Xac nhan</button>
+            </form>
+            <p id="auth-feedback" class="feedback"></p>
+            <button id="logout-button" type="button" class="secondary hidden">Dang xuat</button>
+        </div>
+    </div>
+
+    <div id="leaderboard-modal" class="modal hidden" aria-hidden="true">
+        <div class="modal-card leaderboard-card">
+            <div class="modal-head">
+                <h2>Bang xep hang</h2>
+                <button id="leaderboard-close-button" type="button" class="icon-close" aria-label="Dong">x</button>
+            </div>
+            <button id="leaderboard-refresh-button" type="button" class="secondary">Tai lai</button>
+            <ol id="leaderboard-list" class="leaderboard-list">
+                <li>Dang tai bang xep hang...</li>
+            </ol>
+        </div>
+    </div>
+
     <div class="game-container">
         <div id="start-screen" class="start-screen">
             <p class="eyebrow">WHACK-A-MEW</p>
@@ -41,6 +78,7 @@
             <!-- Các ô game sẽ được tạo bằng JavaScript -->
         </div>
     </div>
+    <script src="profile-integration.js"></script>
     <script src="game.js"></script>
 </body>
 </html> 
